@@ -1,8 +1,5 @@
 import pygame
 
-import sys
-sys.path.insert(1, '/Users/shaankeole/Downloads/Coding/PythonProjects/Pygame/Game')
-
 import Robot as Robot
 import Colors as Colors
 
