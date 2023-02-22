@@ -27,6 +27,11 @@ ccu = True
 p_last = False
 c_last = False
 
+green = (0, 255, 0)
+blue = (0, 0, 128)
+
+font = pygame.font.Font('freesansbold.ttf', 32)
+
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -76,6 +81,9 @@ while run:
         
         pygame.draw.rect(gameDisplay, Colors.green, (0, 500, 800, 100))
         robot.draw()
+        
+        text = font.render("current position: (" + str(round((robot.target_xy.x - 272) * (32.0 / 231.0), 1)) + ", " + str(round((167-robot.target_xy.y) * (32.0 / 231.0), 1)) + ")", True, (0,0,0), (255,255,255),)
+        gameDisplay.blit(text, (0, 0))
 
         pygame.display.update()
     clock.tick(30)
