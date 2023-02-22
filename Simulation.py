@@ -81,7 +81,6 @@ while run:
     clock.tick(30)
     
     print("\n\n\n")
-    print("current x: " + str(round((robot.target_xy.x - 272) * (32.0 / 231.0), 1)))
-    print("current y: " + str(round((167-robot.target_xy.y) * (32.0 / 231.0), 1)))
+    print("current position: (" + str(round((robot.target_xy.x - 272) * (32.0 / 231.0), 1)) + ", " + str(round((167-robot.target_xy.y) * (32.0 / 231.0), 1)) + ")")
 
 pygame.quit()
