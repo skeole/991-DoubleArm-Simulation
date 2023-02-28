@@ -5,6 +5,8 @@ display_size = (1000, 800)
 
 pixels_per_inch = display_size[0] * 0.01
 
+roboRio_server = "172.22.11.2"
+
 robot_polygon : list[tuple[float, float]] = [ # in inches
     (33.25, 7), 
     (34.5, 5.75), 
@@ -373,7 +375,7 @@ from networktables import NetworkTables
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-NetworkTables.initialize(server="10.9.91.2") # RoboRio
+NetworkTables.initialize(server=roboRio_server) # RoboRio
 smartDashboard = NetworkTables.getTable("SmartDashboard")
 
 angles = [0, 0]
@@ -395,12 +397,12 @@ while run:
         target_angles
     )
     
-    if (current_angles[0] > -360):
+    if (int(current_angles[0]) != -440):
         point = anglesToPoint(current_angles)
-        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
+        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
         
         point = anglesToPoint(target_angles)
-        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
+        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
     else: # no reading from smartdashboard
         TE.type("could not connect to smart dashboard", font, (int(display_size[0] * 0.5), 80), 0.4, 0.4, black, 3, space_between_letters=5)
 

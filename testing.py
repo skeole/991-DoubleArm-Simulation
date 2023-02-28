@@ -1,6 +1,3 @@
-import math
-import pygame
-
 proximal_length = 32
 distal_length = 15
 
@@ -83,6 +80,9 @@ claw_polygon : list[tuple[float, float]] = [
     (distal_length - 4.6365, -2.5), 
     (distal_length - 2, -2.5)
 ]
+
+import math
+import pygame
 
 class Polygon(object):
     
@@ -395,12 +395,12 @@ while run:
         pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos()))
     )
     
+    point = anglesToPoint(angles)
+    TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
+    
     point = anglesToPoint(pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos())))
     TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
     
-    point = anglesToPoint(angles)
-    TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
-
     pygame.display.update()
     clock.tick(40)
 
