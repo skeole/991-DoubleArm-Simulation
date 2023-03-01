@@ -5,7 +5,7 @@ display_size = (1000, 800)
 
 pixels_per_inch = display_size[0] * 0.01
 
-roboRio_server = "172.22.11.2"
+roboRio_server = "10.9.91.2"
 
 robot_polygon : list[tuple[float, float]] = [ # in inches
     (33.25, 7), 
@@ -32,6 +32,10 @@ robot_polygon : list[tuple[float, float]] = [ # in inches
     (3.25, 33.130295), 
     (27.663629, 47.270182), 
     (28.666004, 45.539504), 
+    (21.25, 41.244303), 
+    (21.25, 7), 
+    (19, 7), 
+    (19, 40.085943), 
     (4.25, 31.398242), 
     (4.25, 7)
 ]

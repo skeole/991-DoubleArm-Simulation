@@ -30,6 +30,10 @@ robot_polygon : list[tuple[float, float]] = [ # in inches
     (3.25, 33.130295), 
     (27.663629, 47.270182), 
     (28.666004, 45.539504), 
+    (21.25, 41.244303), 
+    (21.25, 7), 
+    (19, 7), 
+    (19, 40.085943), 
     (4.25, 31.398242), 
     (4.25, 7)
 ]
@@ -370,6 +374,10 @@ TE = Text_Engine(gameDisplay)
 
 angles = [-80.0, 80.0]
 run = True
+pause = False
+p_last = False
+
+tangles = [0, 0]
 
 while run:
     for event in pygame.event.get():
@@ -385,21 +393,30 @@ while run:
         angles[1] += 1.5
     if pygame.key.get_pressed()[pygame.K_DOWN]:
         angles[1] -= 1.5
+        
+    if pygame.key.get_pressed()[pygame.K_p]:
+        if (not p_last):
+            pause = not pause
+            p_last = True
+    else:
+        p_last = False
     
     gameDisplay.fill(background_color)
+    
+    if (not pause):
+        tangles = pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos()))
     
     pygame.draw.rect(gameDisplay, green, (0, int(display_size[1] * 0.85), display_size[0], display_size[1]))
     drawPolygons(
         (display_size[0] * 0.1, display_size[1] * 0.85), 
         angles, 
-        pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos()))
+        tangles
     )
     
-    point = anglesToPoint(angles)
-    TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
-    
-    point = anglesToPoint(pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos())))
+    point = anglesToPoint(tangles)
     TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
+    TE.type("target angles are (" + str(round(tangles[0], 1)) + ", " + str(round(tangles[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
+    
     
     pygame.display.update()
     clock.tick(40)
