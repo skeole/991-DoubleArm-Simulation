@@ -402,10 +402,10 @@ while run:
     )
     
     if (int(current_angles[0]) != -440):
-        point = anglesToPoint(current_angles)
+        point = current_angles #anglesToPoint(current_angles)
         TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
         
-        point = anglesToPoint(target_angles)
+        point = target_angles #anglesToPoint(target_angles)
         TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
     else: # no reading from smartdashboard
         TE.type("could not connect to smart dashboard", font, (int(display_size[0] * 0.5), 80), 0.4, 0.4, black, 3, space_between_letters=5)
