@@ -1,10 +1,10 @@
 display_size = (800, 600)
 
 space_between = 15
-total_height = 500
+total_height = 600
 total_width = 800
 side_border = 20
-top_border = 30
+top_border = 50
 bottom_border = 20
 
 categories = ["station", "place",  "elements", "autobalance"]
@@ -355,7 +355,7 @@ while run:
     
     for i in range(len(grid)):
         if (i != 0):
-            TE.type(categories[i - 1], font, (grid[i][0].pivotPoint[0], gameDisplay.get_height() - total_height + 25), 0.25, 0.25, white, 2, space_between_letters=6)
+            TE.type(categories[i - 1], font, (grid[i][0].pivotPoint[0], gameDisplay.get_height() - total_height + (top_border + 25) / 2), 0.25, 0.25, white, 2, space_between_letters=6)
         for j in range(len(grid[i])):
             temp = grid[i][j].Color
             if (i != 0 and indices[i - 1] != j):
