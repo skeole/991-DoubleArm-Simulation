@@ -1,101 +1,28 @@
-proximal_length = 32
-distal_length = 15
+display_size = (800, 600)
 
-display_size = (1000, 800)
+space_between = 15
+total_height = 500
+total_width = 800
+side_border = 20
+top_border = 30
+bottom_border = 20
 
-pixels_per_inch = display_size[0] * 0.01
+roboRio_server = "10.9.91.2"
 
-robot_polygon : list[tuple[float, float]] = [ # in inches
-    (33.25, 7), 
-    (34.5, 5.75), 
-    (34.5, 3.25), 
-    (33.25, 2), 
-    (30.625, 2), 
-    (30.625, 1.171573), 
-    (29.453427, 0), 
-    (27.796573, 0), 
-    (26.625, 1.171573), 
-    (26.625, 2), 
-    (7.875, 2), 
-    (7.875, 1.171573), 
-    (6.703427, 0), 
-    (5.046573, 0), 
-    (3.875, 1.171573), 
-    (3.875, 2), 
-    (1.25, 2), 
-    (0, 3.25), 
-    (0, 5.75), 
-    (1.25, 7), 
-    (3.25, 7), 
-    (3.25, 33.130295), 
-    (27.663629, 47.270182), 
-    (28.666004, 45.539504), 
-    (21.25, 41.244303), 
-    (21.25, 7), 
-    (19, 7), 
-    (19, 40.085943), 
-    (4.25, 31.398242), 
-    (4.25, 7)
-]
-
-first_pivot : tuple[float, float] = (27.278627, 45.825413)
-
-proximal_polygon : list[tuple[float, float]] = [
-    (-1, -1), 
-    (proximal_length - 3, -1), 
-    (proximal_length - 3, 1), 
-    (-1, 1)
-    
-]
-
-second_pivot : tuple[float, float] = (proximal_length - 4, 0)
-
-distal_polygon : list[tuple[float, float]] = [
-    (0.792893, 1.414214), 
-    (2, -1), 
-    (distal_length - 2, -1), 
-    (distal_length - 2, -2.5), 
-    (-2, -2.5), 
-    (-2, -1), 
-    (-0.792893, 1.414214)
-]
-
-claw_polygon : list[tuple[float, float]] = [
-    (distal_length - 2, -1), 
-    (distal_length - 5, -1), 
-    (distal_length - 5, -0.75), 
-    (distal_length + 7.739619, -0.75), 
-    (distal_length + 7.739619, -2.75), 
-    (distal_length - 2.4174, -2.75), 
-    (distal_length - 2.4174, -3), 
-    (distal_length - 2.629998, -3), 
-    (distal_length - 2.629998, -3.11811), 
-    (distal_length - 2.728423, -3.11811), 
-    (distal_length - 2.728423, -4.535433), 
-    (distal_length - 3.004014, -4.870079), 
-    (distal_length - 3.830785, -4.870079), 
-    (distal_length - 4.106376, -4.535433), 
-    (distal_length - 4.106376, -3.118110), 
-    (distal_length - 4.204801, -3.118110), 
-    (distal_length - 4.204801, -3), 
-    (distal_length - 4.4174, -3), 
-    (distal_length - 4.4174, -2.565), 
-    (distal_length - 4.6365, -2.565), 
-    (distal_length - 4.6365, -2.5), 
-    (distal_length - 2, -2.5)
-]
+categories = ["station", "place",  "elements", "autobalance"]
 
 import math
 import pygame
 
 class Polygon(object):
     
-    def __init__(self, Points, Color, surface, scale=1.0, Pivot=(0, 0)):
+    def __init__(self, Points, Color, surface, scale=1.0, Pivot=(0, 0), name=""):
         
         self.Points = Points
         self.Color = Color
         self.Pivot = Pivot # special points that are also tracked
         self.scale = scale
+        self.name = name
         
         self.surface = surface
         
@@ -147,111 +74,129 @@ clear_green = (0, 255, 0, 128)
 clear_blue = (0, 0, 255, 128)
 
 orange = (255, 128, 0)
-yellow = (153, 153, 0)
-lime = (76, 153, 0)
+yellow = (255, 255, 0)
+lime = (128, 255, 0)
 
+# total_height - 1 or 2 * space_between / 2 or 3
+# total_width - 2 * space_between / 3
+
+temp = [
+    (total_height - top_border - bottom_border - space_between) / 2, 
+    (total_height - top_border - bottom_border - 2 * space_between) / 3, 
+    (total_width - 2 * side_border - 3 * space_between) / 4
+]
 
 pygame.init()
 gameDisplay = pygame.display.set_mode(display_size)
-pygame.display.set_caption('DoubleArm Display')
+pygame.display.set_caption('AutoSelector Display')
 clock = pygame.time.Clock()
 
 background_color = white
 
-Polygons = [
-    Polygon(robot_polygon, black, gameDisplay, scale=pixels_per_inch, Pivot=first_pivot), 
-    Polygon(proximal_polygon, red, gameDisplay, scale=pixels_per_inch, Pivot=second_pivot), 
-    Polygon(distal_polygon, blue, gameDisplay, scale=pixels_per_inch), 
-    Polygon(claw_polygon, black, gameDisplay, scale=pixels_per_inch)
-]
-
-def draw_polygon_alpha(color, points):
-    lx, ly = zip(*points)
-    min_x, min_y, max_x, max_y = min(lx), min(ly), max(lx), max(ly)
-    target_rect = pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)
-    shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
-    pygame.draw.polygon(shape_surf, color, [(x - min_x, y - min_y) for x, y in points])
-    gameDisplay.blit(shape_surf, target_rect)
-
-def drawPolygons(pos, current_angles, target_angles):
-    Polygons[0].rotateTo(0)
-    Polygons[0].setPos(pos)
-    
-    Polygons[1].rotateTo(current_angles[0])
-    Polygons[1].setPos(Polygons[0].pivotPoint)
-    
-    Polygons[2].rotateTo(current_angles[1])
-    Polygons[2].setPos(Polygons[1].pivotPoint)
-    
-    Polygons[3].rotateTo(current_angles[1])
-    Polygons[3].setPos(Polygons[1].pivotPoint)
-    
-    for i in Polygons:
-        i.draw()
-    
-    Polygons[1].rotateTo(target_angles[0])
-    Polygons[1].setPos(Polygons[0].pivotPoint)
-    
-    Polygons[2].rotateTo(target_angles[1])
-    Polygons[2].setPos(Polygons[1].pivotPoint)
-    
-    Polygons[3].rotateTo(target_angles[1])
-    Polygons[3].setPos(Polygons[1].pivotPoint)
-    
-    Polygons[1].update_hitbox()
-    Polygons[2].update_hitbox()
-    Polygons[3].update_hitbox()
-    
-    draw_polygon_alpha(clear_red, Polygons[1].hitbox)
-    draw_polygon_alpha(clear_blue, Polygons[2].hitbox)
-    draw_polygon_alpha(clear_black, Polygons[3].hitbox)
-
-def mouse_pos_to_inches(mousePos):
-    return (
-        (mousePos[0] - Polygons[0].pivotPoint[0]) / pixels_per_inch, 
-        (Polygons[0].pivotPoint[1] - mousePos[1]) / pixels_per_inch
+grid = [[
+    Polygon(
+        [[-total_width / 2, total_height / 2],
+        [total_width / 2, total_height / 2],
+        [total_width / 2, -total_height / 2],
+        [-total_width / 2, -total_height / 2]], 
+        black, 
+        gameDisplay
     )
-
-def pointToAngles(coordinates, ccu=True):
-        
-    x = coordinates[0]
-    y = coordinates[1]
-
-    if (abs(x) < 0.25):
-        x = 0.25
-
-    radius = math.sqrt(x * x + y * y)
-    
-    if (radius < 1.2 * (proximal_length - distal_length - 11.751984)):
-        x *= 1.2 * (19) / radius
-        y *= 1.2 * (19) / radius
-        radius = 1.2 * (proximal_length - distal_length - 11.751984)
-        
-    elif (radius > 0.99 * (proximal_length + distal_length + 3.751984)):
-        x *= 0.99 * (443) / radius
-        y *= 0.99 * (443) / radius
-        radius = 0.99 * (proximal_length + distal_length + 3.751984)
-
-    angle = math.atan(y / x) * 180.0 / math.pi;
-    if (x < 0):
-        if (angle > 0):
-            angle -= 180
-        else:
-            angle += 180
-
-    first_angle = math.acos((radius * radius + (proximal_length - 4) * (proximal_length - 4) - (distal_length + 7.751984) * (distal_length + 7.751984)) / (2.0 * (proximal_length - 4) * radius)) * 180.0 / math.pi
-    second_angle = math.acos((radius * radius + (distal_length + 7.751984) * (distal_length + 7.751984) - (proximal_length - 4) * (proximal_length - 4)) / (2.0 * (distal_length + 7.751984) * radius)) * 180.0 / math.pi
-    
-    if (ccu):
-        return [angle - first_angle, angle + second_angle]
-    else:
-        return [angle + first_angle, angle - second_angle]
-
-def anglesToPoint(angles):
-    return [
-        (proximal_length - 4) * math.cos(math.pi / 180.0 * angles[0]) + (distal_length + 7.751984) * math.cos(math.pi / 180.0 * angles[1]), 
-        (proximal_length - 4) * math.sin(math.pi / 180.0 * angles[0]) + (distal_length + 7.751984) * math.sin(math.pi / 180.0 * angles[1])
-    ]
+], [
+    Polygon(
+        [[-total_width / 2 + side_border, total_height / 2 - top_border],
+        [-total_width / 2 + side_border + temp[2], total_height / 2 - top_border],
+        [-total_width / 2 + side_border + temp[2], total_height / 2 - top_border - temp[0]],
+        [-total_width / 2 + side_border, total_height / 2 - top_border - temp[0]]], 
+        blue, 
+        gameDisplay, 
+        Pivot=(-total_width / 2 + side_border + temp[2] / 2, total_height / 2 - top_border - temp[0] / 2), 
+        name="blue"
+    ), 
+    Polygon(
+        [[-total_width / 2 + side_border, -total_height / 2 + bottom_border],
+        [-total_width / 2 + side_border + temp[2], -total_height / 2 + bottom_border],
+        [-total_width / 2 + side_border + temp[2], -total_height / 2 + bottom_border + temp[0]],
+        [-total_width / 2 + side_border, -total_height / 2 + bottom_border + temp[0]]], 
+        red, 
+        gameDisplay, 
+        Pivot=(-total_width / 2 + side_border + temp[2] / 2, -total_height / 2 + bottom_border + temp[0] / 2), 
+        name="red"
+    )
+], [
+    Polygon(
+        [[-temp[2] - space_between / 2, total_height / 2 - top_border], 
+        [-space_between / 2, total_height / 2 - top_border], 
+        [-space_between / 2, total_height / 2 - top_border - temp[1]], 
+        [-temp[2] - space_between / 2, total_height / 2 - top_border - temp[1]]], 
+        yellow, 
+        gameDisplay, 
+        Pivot=(-temp[2] / 2 - space_between / 2, total_height / 2 - top_border - temp[1] / 2), 
+        name="short"
+    ), 
+    Polygon(
+        [[-temp[2] - space_between / 2, total_height / 2 - top_border - temp[1] - space_between], 
+        [-space_between / 2, total_height / 2 - top_border - temp[1] - space_between], 
+        [-space_between / 2, -total_height / 2 + bottom_border + temp[1] + space_between], 
+        [-temp[2] - space_between / 2, -total_height / 2 + bottom_border + temp[1] + space_between]], 
+        green, 
+        gameDisplay, 
+        Pivot=(-temp[2] / 2 - space_between / 2, (bottom_border - top_border) / 2), 
+        name="medium"
+    ), 
+    Polygon(
+        [[-temp[2] - space_between / 2, -total_height / 2 + bottom_border], 
+        [-space_between / 2, -total_height / 2 + bottom_border], 
+        [-space_between / 2, -total_height / 2 + bottom_border + temp[1]], 
+        [-temp[2] - space_between / 2, -total_height / 2 + bottom_border + temp[1]]], 
+        orange, 
+        gameDisplay, 
+        Pivot=(-temp[2] / 2 - space_between / 2, -total_height / 2 + bottom_border + temp[1] / 2), 
+        name="long"
+    )
+], [
+    Polygon(
+        [[temp[2] + space_between / 2, total_height / 2 - top_border],
+        [space_between / 2, total_height / 2 - top_border],
+        [space_between / 2, total_height / 2 - top_border - temp[0]],
+        [temp[2] + space_between / 2, total_height / 2 - top_border - temp[0]]], 
+        lime, 
+        gameDisplay, 
+        Pivot=(temp[2] / 2 + space_between / 2, total_height / 2 - top_border - temp[0] / 2), 
+        name="one"
+    ), 
+    Polygon(
+        [[temp[2] + space_between / 2, -total_height / 2 + bottom_border],
+        [space_between / 2, -total_height / 2 + bottom_border],
+        [space_between / 2, -total_height / 2 + bottom_border + temp[0]],
+        [temp[2] + space_between / 2, -total_height / 2 + bottom_border + temp[0]]], 
+        lime, 
+        gameDisplay, 
+        Pivot=(temp[2] / 2 + space_between / 2, -total_height / 2 + bottom_border + temp[0] / 2), 
+        name="two"
+    )
+], [
+    Polygon(
+        [[total_width / 2 - side_border, total_height / 2 - top_border],
+        [total_width / 2 - side_border - temp[2], total_height / 2 - top_border],
+        [total_width / 2 - side_border - temp[2], total_height / 2 - top_border - temp[0]],
+        [total_width / 2 - side_border, total_height / 2 - top_border - temp[0]]], 
+        lime, 
+        gameDisplay, 
+        Pivot=(total_width / 2 - side_border - temp[2] / 2, total_height / 2 - top_border - temp[0] / 2), 
+        name="yes"
+    ), 
+    Polygon(
+        [[total_width / 2 - side_border, -total_height / 2 + bottom_border],
+        [total_width / 2 - side_border - temp[2], -total_height / 2 + bottom_border],
+        [total_width / 2 - side_border - temp[2], -total_height / 2 + bottom_border + temp[0]],
+        [total_width / 2 - side_border, -total_height / 2 + bottom_border + temp[0]]], 
+        lime, 
+        gameDisplay, 
+        Pivot=(total_width / 2 - side_border - temp[2] / 2, -total_height / 2 + bottom_border + temp[0] / 2), 
+        name="no"
+    )
+]]
 
 CharacterList = "abcdefghijklmnopqrstuvwxyz 0123456789(),.-"
 font = [[50, ['l', (50, 0), (50, 40)], ['l', (50, 40), (40, 50)], ['l', (40, 50), (10, 50)], ['l', (10, 50), (0, 40)], 
@@ -379,44 +324,54 @@ p_last = False
 
 tangles = [0, 0]
 
+from networktables import NetworkTables
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+NetworkTables.initialize(server=roboRio_server) # RoboRio
+smartDashboard = NetworkTables.getTable("SmartDashboard")
+
+for i in grid:
+    for j in i:
+        j.setPos((gameDisplay.get_width() / 2, gameDisplay.get_height() - total_height / 2))
+
+mousedownlast = False
+mouseclicked = False
+
+indices = [0, 0, 0, 0]
+
 while run:
+    mouseclicked = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        
-    if pygame.key.get_pressed()[pygame.K_w]:
-        angles[0] += 1.5
-    if pygame.key.get_pressed()[pygame.K_s]:
-        angles[0] -= 1.5
-        
-    if pygame.key.get_pressed()[pygame.K_UP]:
-        angles[1] += 1.5
-    if pygame.key.get_pressed()[pygame.K_DOWN]:
-        angles[1] -= 1.5
-        
-    if pygame.key.get_pressed()[pygame.K_p]:
-        if (not p_last):
-            pause = not pause
-            p_last = True
-    else:
-        p_last = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseclicked = not mousedownlast
+            mousedownlast = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            mouseclicked = False
+            mousedownlast = False
     
     gameDisplay.fill(background_color)
     
-    if (not pause):
-        tangles = pointToAngles(mouse_pos_to_inches(pygame.mouse.get_pos()))
+    for i in range(1, len(grid)):
+        for j in range(len(grid[i])):
+            if (mouseclicked):
+                if ((grid[i][j].hitbox[0][0] < pygame.mouse.get_pos()[0]) == (pygame.mouse.get_pos()[0] < grid[i][j].hitbox[2][0])):
+                    if ((grid[i][j].hitbox[0][1] < pygame.mouse.get_pos()[1]) == (pygame.mouse.get_pos()[1] < grid[i][j].hitbox[2][1])):
+                        indices[i - 1] = j
     
-    pygame.draw.rect(gameDisplay, green, (0, int(display_size[1] * 0.85), display_size[0], display_size[1]))
-    drawPolygons(
-        (display_size[0] * 0.1, display_size[1] * 0.85), 
-        angles, 
-        tangles
-    )
-    
-    point = anglesToPoint(tangles)
-    TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
-    TE.type("target angles are (" + str(round(tangles[0], 1)) + ", " + str(round(tangles[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
-    
+    for i in range(len(grid)):
+        if (i != 0):
+            TE.type(categories[i - 1], font, (grid[i][0].pivotPoint[0], gameDisplay.get_height() - total_height + 25), 0.25, 0.25, white, 2, space_between_letters=6)
+        for j in range(len(grid[i])):
+            temp = grid[i][j].Color
+            if (i != 0 and indices[i - 1] != j):
+                grid[i][j].Color = (temp[0] / 2, temp[1] / 2, temp[2] / 2)
+            grid[i][j].draw()
+            grid[i][j].Color = temp
+            if (i != 0):
+                TE.type(grid[i][j].name, font, grid[i][j].pivotPoint, 0.25, 0.25, black, 2, space_between_letters=6)
     
     pygame.display.update()
     clock.tick(40)

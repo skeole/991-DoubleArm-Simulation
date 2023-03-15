@@ -1,7 +1,7 @@
 proximal_length = 32
 distal_length = 15
 
-display_size = (1000, 800)
+display_size = (800, 600)
 
 pixels_per_inch = display_size[0] * 0.01
 
@@ -403,12 +403,12 @@ while run:
     
     if (int(current_angles[0]) != -440):
         point = current_angles #anglesToPoint(current_angles)
-        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 80), 0.5, 0.5, black, 4, space_between_letters=6)
+        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), int(display_size[1] * 0.1)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
         
         point = target_angles #anglesToPoint(target_angles)
-        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), 140), 0.5, 0.5, black, 4, space_between_letters=6)
+        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (int(display_size[0] * 0.5), int(display_size[1] * 0.175)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
     else: # no reading from smartdashboard
-        TE.type("could not connect to smart dashboard", font, (int(display_size[0] * 0.5), 80), 0.4, 0.4, black, 3, space_between_letters=5)
+        TE.type("could not connect to smart dashboard", font, (int(display_size[0] * 0.5), int(display_size[1] * 0.1)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
 
     pygame.display.update()
     clock.tick(20)
