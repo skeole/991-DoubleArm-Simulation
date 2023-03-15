@@ -411,6 +411,6 @@ while run:
         TE.type("could not connect to smart dashboard", font, (int(display_size[0] * 0.5), int(display_size[1] * 0.1)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
 
     pygame.display.update()
-    clock.tick(20)
+    clock.tick(10)
 
 pygame.quit()

@@ -376,6 +376,6 @@ while run:
     smartDashboard.putNumberArray("Auto Data", indices)
     
     pygame.display.update()
-    clock.tick(40)
+    clock.tick(10)
 
 pygame.quit()

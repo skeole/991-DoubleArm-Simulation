@@ -366,6 +366,6 @@ while run:
                 TE.type(grid[i][j].name, font, grid[i][j].pivotPoint, 0.25, 0.25, black, 2, space_between_letters=6)
     
     pygame.display.update()
-    clock.tick(40)
+    clock.tick(10)
 
 pygame.quit()
