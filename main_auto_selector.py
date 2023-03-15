@@ -373,6 +373,8 @@ while run:
             if (i != 0):
                 TE.type(grid[i][j].name, font, grid[i][j].pivotPoint, 0.25, 0.25, black, 2, space_between_letters=6)
     
+    smartDashboard.putNumberArray("Auto Data", indices)
+    
     pygame.display.update()
     clock.tick(40)
 
