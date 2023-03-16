@@ -1,7 +1,7 @@
 display_size = (800, 600)
 
 space_between = 15
-total_height = 600
+total_height = 400
 total_width = 800
 side_border = 20
 top_border = 50
@@ -317,12 +317,96 @@ class Text_Engine(object):
 
 TE = Text_Engine(gameDisplay)
 
-angles = [-80.0, 80.0]
-run = True
-pause = False
-p_last = False
+arrow_up = Polygon(
+    [
+        (-30, 10), 
+        (30, 10), 
+        (0, 80)
+    ], 
+    gray, 
+    gameDisplay, 
+)
 
-tangles = [0, 0]
+arrow_down = Polygon(
+    [
+        (-30, -10), 
+        (30, -10), 
+        (0, -80)
+    ], 
+    gray, 
+    gameDisplay, 
+)
+
+def point_above_line(point, line): #definition of "above": y above line, or if vertical, then x value greater
+    #point format: (x, y)
+    #line format: [(x1, y1), (x2, y2)]
+    if line[0][0] == line[1][0]:
+        return point[0] > line[0][0]
+    elif point[0] == line[0][0]:
+        return point[1] > line[0][1]
+    elif point[0] > line[0][0]:
+        return (point[1]-line[0][1])/(point[0]-line[0][0]) > (line[1][1]-line[0][1])/(line[1][0]-line[0][0])
+    else:
+        return (point[1]-line[0][1])/(point[0]-line[0][0]) < (line[1][1]-line[0][1])/(line[1][0]-line[0][0])
+
+def point_on_line(point, line):
+    if abs(line[1][0]-line[0][0]) == 0:
+        return abs(line[0][0] - point[0]) < 0.01
+    elif abs(point[0]-line[0][0]) == 0:
+        return False
+    else:
+        return (point[1]-line[0][1])/(point[0]-line[0][0]) == (line[1][1]-line[0][1])/(line[1][0]-line[0][0])
+
+def intersect(line_1, line_2):
+    if (max(line_1[0][0], line_1[1][0]) < min(line_2[0][0], line_2[1][0])) or (min(line_1[0][0], line_1[1][0]) > max(line_2[0][0], line_2[1][0])) or (max(line_1[0][1], line_1[1][1]) < min(line_2[0][1], line_2[1][1])) or (min(line_1[0][1], line_1[1][1]) > max(line_2[0][1], line_2[1][1])):
+        return False #legit zero chance they intersect
+    
+    temp_1 = line_1[1][0]
+    temp_2 = line_2[1][0]
+    if line_1[0][0] == line_1[1][0]:
+        temp_1 += 0.01
+    if line_2[0][0] == line_2[1][0]:
+        temp_2 += 0.01
+    lein_1 = [line_1[0], (temp_1, line_1[1][1])]
+    lein_2 = [line_2[0], (temp_2, line_2[1][1])]
+    
+    if point_on_line(lein_1[0], lein_2) or point_on_line(lein_1[1], lein_2) or point_on_line(lein_2[0], lein_1) or point_on_line(lein_2[1], lein_1):
+        return False #if any of the points are on the line
+    else:
+        return (point_above_line(lein_1[0], lein_2) != point_above_line(lein_1[1], lein_2)) and (point_above_line(lein_2[0], lein_1) != point_above_line(lein_2[1], lein_1))
+
+def point_inside_polygon(point, polygon, accuracy=6): #we want the inside-ness to be the same for every line
+    #solution - very scuffed - kinda LOLLY - but should work
+    min_x = 10000000
+    min_y = 10000000
+    max_x = -10000000
+    max_y = -10000000
+    for i in polygon:
+        min_x = min(min_x, i[0])
+        max_x = max(max_x, i[0])
+        min_y = min(min_y, i[1])
+        max_y = max(max_y, i[1])
+    length = math.sqrt((max_x-min_x)*(max_x-min_x)+(max_y-min_y)*(max_y-min_y))
+    
+    for i in range(accuracy): #go over "accuracy" radial lines
+        temp = 0
+        
+        for j in range(len(polygon)): #add 1 if intersects line, 0.5 for each endpoint it touches
+            radial_line = [point, (point[0] + length*math.cos(2*math.pi/accuracy * i), point[1] + length*math.sin(2*math.pi/accuracy * i))]
+            if point_on_line(polygon[j], radial_line):
+                temp += 1
+            if point_on_line(polygon[(j+1) % len(polygon)], radial_line):
+                temp += 1
+            if intersect(radial_line, 
+                         [polygon[j], polygon[(j+1) % len(polygon)]]):
+                temp += 2
+            #see if the radial line intersects any of the hitbox lines
+        
+        if temp % 4 != 2:
+            return False
+    return True
+
+run = True
 
 from networktables import NetworkTables
 import logging
@@ -335,10 +419,15 @@ for i in grid:
     for j in i:
         j.setPos((gameDisplay.get_width() / 2, gameDisplay.get_height() - total_height / 2))
 
+arrow_up.setPos((530, 100))
+arrow_down.setPos((530, 100))
+
 mousedownlast = False
 mouseclicked = False
 
-indices = [0, 0, 0, 0]
+indices = [0, 0, 0, 0, 0]
+
+time_wait = 0.0
 
 while run:
     mouseclicked = False
@@ -367,11 +456,30 @@ while run:
         for j in range(len(grid[i])):
             temp = grid[i][j].Color
             if (i != 0 and indices[i - 1] != j):
-                grid[i][j].Color = (temp[0] / 2, temp[1] / 2, temp[2] / 2)
+                grid[i][j].Color = gray
             grid[i][j].draw()
             grid[i][j].Color = temp
             if (i != 0):
                 TE.type(grid[i][j].name, font, grid[i][j].pivotPoint, 0.25, 0.25, black, 2, space_between_letters=6)
+    
+    arrow_up.draw()
+    arrow_down.draw()
+    
+    if (mouseclicked and point_inside_polygon(pygame.mouse.get_pos(), arrow_up.hitbox)):
+        time_wait += 0.5
+        if (time_wait > 5):
+            time_wait = 5.0
+    
+    if (mouseclicked and point_inside_polygon(pygame.mouse.get_pos(), arrow_down.hitbox)):
+        time_wait -= 0.5
+        if (time_wait < 0):
+            time_wait = 0.0
+    
+    indices[4] = round(time_wait, 1)
+    
+    TE.type("toqibb", font, (180, 140), 1.2, 1.2, black, 6, space_between_letters=12)
+    TE.type("auto selector", font, (360, 190), 0.4, 0.4, black, 2, space_between_letters=6)
+    TE.type(str(round(time_wait, 1)), font, (680, 180), 1.6, 1.6, black, 8, space_between_letters=14)
     
     smartDashboard.putNumberArray("Auto Data", indices)
     
