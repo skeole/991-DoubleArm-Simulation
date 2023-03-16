@@ -450,6 +450,8 @@ while run:
                     if ((grid[i][j].hitbox[0][1] < pygame.mouse.get_pos()[1]) == (pygame.mouse.get_pos()[1] < grid[i][j].hitbox[2][1])):
                         indices[i - 1] = j
     
+    indices[2] = 0 # Override because can't do double cone
+    
     for i in range(len(grid)):
         if (i != 0):
             TE.type(categories[i - 1], font, (grid[i][0].pivotPoint[0], gameDisplay.get_height() - total_height + (top_border + 25) / 2), 0.25, 0.25, white, 2, space_between_letters=6)
