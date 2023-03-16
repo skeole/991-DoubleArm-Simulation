@@ -1,8 +1,8 @@
 proximal_length = 32
 distal_length = 15
 
-display_size_left = (800, 600)
-display_size_right = (740, 600)
+display_size_left = (800, 593)
+display_size_right = (740, 593)
 
 pixels_per_inch = display_size_right[0] * 0.01
 
@@ -680,7 +680,7 @@ while run:
     indices[4] = round(time_wait, 1)
     
     TE.type("toqibb", font, (180, 140), 1.2, 1.2, black, 6, space_between_letters=12)
-    TE.type("auto selector", font, (360, 190), 0.4, 0.4, black, 2, space_between_letters=6)
+    TE.type("auto selector", font, (360, 187), 0.4, 0.4, black, 2, space_between_letters=6)
     TE.type(str(round(time_wait, 1)), font, (680, 180), 1.6, 1.6, black, 8, space_between_letters=14)
     
     smartDashboard.putNumberArray("Auto Data", indices)
