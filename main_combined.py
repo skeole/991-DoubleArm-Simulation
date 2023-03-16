@@ -1,9 +1,10 @@
 proximal_length = 32
 distal_length = 15
 
-display_size = (800, 600)
+display_size_left = (800, 600)
+display_size_right = (740, 600)
 
-pixels_per_inch = display_size[0] * 0.01
+pixels_per_inch = display_size_right[0] * 0.01
 
 space_between = 15
 total_height = 400
@@ -164,7 +165,7 @@ lime = (128, 255, 0)
 
 
 pygame.init()
-gameDisplay = pygame.display.set_mode((1600, 600))
+gameDisplay = pygame.display.set_mode((display_size_left[0] + display_size_right[0], display_size_left[1]))
 pygame.display.set_caption('DoubleArm Display')
 clock = pygame.time.Clock()
 
@@ -593,7 +594,7 @@ smartDashboard = NetworkTables.getTable("SmartDashboard")
 
 for i in grid:
     for j in i:
-        j.setPos((display_size[0] / 2, display_size[1] - total_height / 2))
+        j.setPos((display_size_left[0] / 2, display_size_left[1] - total_height / 2))
 
 arrow_up.setPos((530, 100))
 arrow_down.setPos((530, 100))
@@ -621,6 +622,25 @@ while run:
             mousedownlast = False
     
     gameDisplay.fill(background_color)
+    
+    # double arm
+    pygame.draw.rect(gameDisplay, green, (display_size_left[0] + 0, int(display_size_right[1] * 0.85), display_size_left[0] + display_size_right[0], display_size_right[1]))
+    current_angles = (smartDashboard.getNumber("Current Angle 1", -440), smartDashboard.getNumber("Current Angle 2", 80))
+    target_angles = (smartDashboard.getNumber("Target 1st Angle", -60), smartDashboard.getNumber("Target 2nd Angle", 60))
+    drawPolygons(
+        (display_size_left[0] + display_size_right[0] * 0.1, display_size_right[1] * 0.85), 
+        current_angles, 
+        target_angles
+    )
+    
+    if (int(current_angles[0]) != -440):
+        point = current_angles #anglesToPoint(current_angles)
+        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (display_size_left[0] + int(display_size_right[0] * 0.5), int(display_size_right[1] * 0.1)), display_size_right[1] / 1600, display_size_right[1] / 1600, black, 2, space_between_letters=display_size_right[1] / 133.33)
+        
+        point = target_angles #anglesToPoint(target_angles)
+        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (display_size_left[0] + int(display_size_right[0] * 0.5), int(display_size_right[1] * 0.175)), display_size_right[1] / 1600, display_size_right[1] / 1600, black, 2, space_between_letters=display_size_right[1] / 133.33)
+    else: # no reading from smartdashboard
+        TE.type("could not connect to robot", font, (display_size_left[0] + int(display_size_right[0] * 0.5), int(display_size_right[1] * 0.1)), display_size_right[1] / 1600, display_size_right[1] / 1600, black, 2, space_between_letters=display_size_right[1] / 133.33)
     
     # auto selector    
     for i in range(1, len(grid)):
@@ -664,27 +684,6 @@ while run:
     TE.type(str(round(time_wait, 1)), font, (680, 180), 1.6, 1.6, black, 8, space_between_letters=14)
     
     smartDashboard.putNumberArray("Auto Data", indices)
-    
-    print(indices)
-    
-    # double arm
-    pygame.draw.rect(gameDisplay, green, (800 + 0, int(display_size[1] * 0.85), 800 + display_size[0], display_size[1]))
-    current_angles = (smartDashboard.getNumber("Current Angle 1", -440), smartDashboard.getNumber("Current Angle 2", 80))
-    target_angles = (smartDashboard.getNumber("Target 1st Angle", -60), smartDashboard.getNumber("Target 2nd Angle", 60))
-    drawPolygons(
-        (800 + display_size[0] * 0.1, display_size[1] * 0.85), 
-        current_angles, 
-        target_angles
-    )
-    
-    if (int(current_angles[0]) != -440):
-        point = current_angles #anglesToPoint(current_angles)
-        TE.type("current position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (800 + int(display_size[0] * 0.5), int(display_size[1] * 0.1)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
-        
-        point = target_angles #anglesToPoint(target_angles)
-        TE.type("target position is (" + str(round(point[0], 1)) + ", " + str(round(point[1], 1)) + ")", font, (800 + int(display_size[0] * 0.5), int(display_size[1] * 0.175)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
-    else: # no reading from smartdashboard
-        TE.type("could not connect to smart dashboard", font, (800 + int(display_size[0] * 0.5), int(display_size[1] * 0.1)), display_size[1] / 1600, display_size[1] / 1600, black, 2, space_between_letters=display_size[1] / 133.33)
     
     pygame.display.update()
     clock.tick(10)
