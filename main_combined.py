@@ -166,7 +166,7 @@ lime = (128, 255, 0)
 
 pygame.init()
 gameDisplay = pygame.display.set_mode((display_size_left[0] + display_size_right[0], display_size_left[1]))
-pygame.display.set_caption('DoubleArm Display')
+pygame.display.set_caption('Toqibb Display')
 clock = pygame.time.Clock()
 
 background_color = white
