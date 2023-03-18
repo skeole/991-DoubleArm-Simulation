@@ -627,6 +627,13 @@ while run:
     pygame.draw.rect(gameDisplay, green, (display_size_left[0] + 0, int(display_size_right[1] * 0.85), display_size_left[0] + display_size_right[0], display_size_right[1]))
     current_angles = (smartDashboard.getNumber("Current Angle 1", -440), smartDashboard.getNumber("Current Angle 2", 80))
     target_angles = (smartDashboard.getNumber("Target 1st Angle", -60), smartDashboard.getNumber("Target 2nd Angle", 60))
+    claw_state = smartDashboard.getString("claw state", "bwerbhwj")
+    if (claw_state == "intake"):
+        Polygons[3].Color = orange
+    elif (claw_state == "outtake"):
+        Polygons[3].Color = green
+    else: 
+        Polygons[3].Color = black
     drawPolygons(
         (display_size_left[0] + display_size_right[0] * 0.1, display_size_right[1] * 0.85), 
         current_angles, 
