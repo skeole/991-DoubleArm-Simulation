@@ -172,6 +172,8 @@ while run:
             display_size_right[1] * 0.1)), display_size_right[1] / 1600, display_size_right[1] / 1600, black, 2, space_between_letters=display_size_right[1] / 133.33)
 
     # auto selector
+    pindices2 = indices[2]
+
     for i in range(1, len(auto_chooser_grid)):
         for j in range(len(auto_chooser_grid[i])):
             if (mouseclicked):
@@ -180,6 +182,9 @@ while run:
                         indices[i - 1] = j
 
     indices[2] = 0  # Override because can't do double cone
+    if (indices[2] == 1 and indices[3] == 0):
+        indices[2] = 1 - pindices2
+        indices[3] = 1 - pindices2
 
     for i in range(len(auto_chooser_grid)):
         if (i != 0):
