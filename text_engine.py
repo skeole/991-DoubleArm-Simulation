@@ -58,7 +58,7 @@ class Text_Engine(object):
     def __init__(self, surface):
         self.surface = surface
     
-    def type(self, text, font, point, width, height, color, weight, angle=0, space_between_letters: float=0, italics=0.0):
+    def type(self, text: str, font, point, width, height, color, weight, angle=0, space_between_letters: float=0, italics=0.0):
         cangle = angle * math.pi/180.0
         temp = -float(space_between_letters)
         word_hitbox = []

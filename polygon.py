@@ -17,7 +17,7 @@ class Polygon(object):
         self.x = 0
         self.y = 0
         self.angle = 0
-        self.hitbox = []
+        self.hitbox: list[tuple[float, float]] = []
         self.pivotPoint = (0, 0)
 
     def setPos(self, pos: tuple[float, float]):
@@ -36,8 +36,8 @@ class Polygon(object):
     def update_hitbox(self):
         self.hitbox = []
         for i in self.points:  # for every point
-            point = (self.x + self.scale * i[0] * math.cos(self.angle) + self.scale * i[1] * math.sin(self.angle),
-                     self.y + self.scale * i[0] * math.sin(self.angle) - self.scale * i[1] * math.cos(self.angle))
+            point: tuple[float, float] = (self.x + self.scale * i[0] * math.cos(self.angle) + self.scale * i[1] * math.sin(self.angle),
+                                          self.y + self.scale * i[0] * math.sin(self.angle) - self.scale * i[1] * math.cos(self.angle))
             self.hitbox.append(point)  # in form [(x1, y1), (x2, y2), ...]
 
         self.pivotPoint = (self.x + self.scale * self.pivot[0] * math.cos(self.angle) + self.scale * self.pivot[1] * math.sin(self.angle),

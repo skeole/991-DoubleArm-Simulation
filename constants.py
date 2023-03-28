@@ -17,6 +17,7 @@ robot_ip = "10.9.91.2"
 
 categories = ["station", "place",  "elements", "autobalance"]
 
+
 robot_polygon: list[tuple[float, float]] = [  # in inches
     (33.25, 7),
     (34.5, 5.75),
@@ -115,3 +116,6 @@ clear_blue = (0, 0, 255, 128)
 orange = (255, 128, 0)
 yellow = (255, 255, 0)
 lime = (128, 255, 0)
+
+purple = (125, 50, 168)
+cone_yellow = (224, 206, 45)

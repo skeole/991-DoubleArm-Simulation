@@ -1,4 +1,5 @@
 import logging
+from typing import Literal, Union
 from networktables import NetworkTables
 from constants import *
 from shared import *
@@ -146,6 +147,7 @@ while run:
     target_angles = (smartDashboard.getNumber(
         "Target 1st Angle", -60), smartDashboard.getNumber("Target 2nd Angle", 60))
     claw_state = smartDashboard.getString("claw state", "bwerbhwj")
+    arm_mode = "cone" if smartDashboard.getString("ArmMode", "CUBE") == "CONE" else "cube"
     if (claw_state == "intake"):
         polygons[3].color = orange
     elif (claw_state == "outtake"):
@@ -221,6 +223,8 @@ while run:
             0.4, black, 2, space_between_letters=6)
     TE.type(str(round(time_wait, 1)), font, (680, 180),
             1.6, 1.6, black, 8, space_between_letters=14)
+
+    TE.type(arm_mode, font, (1400, 500), .85, .85, purple if arm_mode == "cube" else cone_yellow, 4, space_between_letters=8)
 
     smartDashboard.putNumberArray("Auto Data", indices)
 
